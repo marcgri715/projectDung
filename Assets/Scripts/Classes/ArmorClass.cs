@@ -1,14 +1,14 @@
 using UnityEngine;
 using System.Collections;
 
-public class ArmorClass {
+public class ArmorsClass {
 	
 	private string armorName;
 	private int currentLevel;
 	private float damageReduction;
 	private float dodgeChance;
 	
-	public ArmorClass (string name, int level, int damageRed, int dodge) {
+	public ArmorsClass (string name, int level, int damageRed, int dodge) {
 		armorName = name;
 		currentLevel = level;
 		damageReduction = damageRed;

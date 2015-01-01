@@ -4,7 +4,6 @@ using System.Collections;
 public class HighlightOnMouseOver : MonoBehaviour {
 
 	private Color startingColor;
-	private float fade = 0.0f;
 	public float highlightMultiplier;
 
 	void Start() {

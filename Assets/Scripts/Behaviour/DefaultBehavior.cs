@@ -9,17 +9,16 @@ public class DefaultBehavior : MonoBehaviour {
 
 	private Transform myTransform;				// this transform
 	private Vector3 destinationPosition;		// The destination Point
-	private float destinationDistance;			// The distance between myTransform and destinationPosition
+	//private float destinationDistance;			// The distance between myTransform and destinationPosition
 
 	private static LayerMask obstacleLayerMask = 1 << 10;
 	private static LayerMask playerLayerMask = 1 << 9;
 	private static LayerMask clickableLayerMask = 1 << 8;
 	public float monsterColliderDistance;
-	RaycastHit hit;
 	private float timer = 0;
 	private int idNumber;
 	private MonsterState currentState;
-	private MonsterClass myStats;
+	public MonsterClass myStats;
 	private bool attacking = false;
 	public string idleAnimationString;
 	public string runAnimationString;
@@ -27,16 +26,20 @@ public class DefaultBehavior : MonoBehaviour {
 	public float attackAnimationLength;
 	public string battleIdleAnimationString;
 	public string deathAnimationString;
+	private PlayerStatsClass playerStats;
 
 	// Use this for initialization
 	void Start () {
 		myTransform = transform;
 		destinationPosition = myTransform.position;
-		int.Parse (gameObject.name);
+		idNumber = int.Parse (gameObject.name);
 		currentState = MonsterState.IDLE;
 		GameObject newObject = GameObject.Find ("Level Spawner");
 		DungeonCreator creator = (DungeonCreator) newObject.GetComponent(typeof(DungeonCreator));
 		myStats = creator.getDungeon().getMonster(idNumber);
+		newObject = GameObject.Find ("Player");
+		MovePlayer player = (MovePlayer)newObject.GetComponent (typeof(MovePlayer));
+		playerStats = player.stats;
 		enabled = true;
 		currentState = MonsterState.IDLE;
 		Renderer[] renderers = GetComponentsInChildren<Renderer> ();
@@ -53,7 +56,8 @@ public class DefaultBehavior : MonoBehaviour {
 			                                  myTransform.position.y,
 			                                  myTransform.position.z + Random.Range(-0.5f, 0.5f));
 			Ray ray = new Ray(myTransform.position, destinationPosition-myTransform.position);
-			if (!Physics.Raycast(ray, Vector3.Distance(destinationPosition, myTransform.position), mask)) {
+			//Vector3.Distance(destinationPosition, myTransform.position)
+			if (!Physics.Raycast(ray, monsterColliderDistance, mask)) {
 				break;
 			}
 		}
@@ -66,84 +70,128 @@ public class DefaultBehavior : MonoBehaviour {
 		attacking = false;
 		foreach (Collider collider in colliders) {
 			if (collider.tag == "Player") {
-				Ray ray = new Ray(myTransform.position, collider.transform.position-myTransform.position);
+				Vector3 rayLastPosition = myTransform.position;
+				Ray ray = new Ray(rayLastPosition, collider.transform.position-rayLastPosition);
 				LayerMask mask = obstacleLayerMask | clickableLayerMask;
 				float distance = Vector3.Distance(myTransform.position, collider.transform.position);
-				if (!Physics.Raycast(ray, out hit, distance, mask)) {
-					destinationPosition = collider.transform.position;
-					destinationDistance = Vector3.Distance(myTransform.position, destinationPosition);
-					Quaternion targetRotation = Quaternion.LookRotation(destinationPosition - myTransform.position);
-					myTransform.rotation = targetRotation;
-					attacking = true;
+				RaycastHit hit;
+				while (true) {
+					if (Physics.Raycast(ray, out hit, distance, mask)) {
+						if (hit.collider.tag == "Monster") {
+							distance -= Vector3.Distance(rayLastPosition, hit.transform.position);
+							if (distance <= 0) 
+								break;
+							rayLastPosition = hit.transform.position;
+							ray = new Ray(rayLastPosition, collider.transform.position - rayLastPosition);
+						} else {
+							break;
+						}
+					} else {
+						destinationPosition = collider.transform.position;
+						Quaternion targetRotation = Quaternion.LookRotation(destinationPosition - myTransform.position);
+						myTransform.rotation = targetRotation;
+						attacking = true;
+						break;
+					}
 				}
 				break;
 			}
 		}
 	}
 
+	void moveTowards() {
+		LayerMask mask = obstacleLayerMask | clickableLayerMask;
+		Ray ray = new Ray (myTransform.position, destinationPosition - myTransform.position);
+		if (Physics.Raycast(ray, monsterColliderDistance, mask)) {
+			destinationPosition = myTransform.position;
+			attacking = false;
+		} else {
+			myTransform.position = Vector3.MoveTowards(myTransform.position, 
+			                                           destinationPosition, 
+			                                           myStats.getMovementSpeed() * Time.deltaTime);
+		}
+	}
+
 
 	// Update is called once per frame
 	void Update () {
-		lookForPlayer ();
-		float distance = Vector3.Distance(myTransform.position, destinationPosition);
-		if (currentState == MonsterState.MOVING) {
-			if (attacking) {
-				if (distance < myStats.getAttackRange()) {
-					if (timer > 0) {
-						currentState = MonsterState.COMBAT_IDLE;
-						animation.Play(battleIdleAnimationString);
-					} else {
-						destinationPosition = myTransform.position;
-						destinationDistance = 0;
-						currentState = MonsterState.ATTACKING;
-						timer = attackAnimationLength;
-						animation.Play(attackAnimationString);
-					}
-				} else {
-					myTransform.position = Vector3.MoveTowards(myTransform.position, 
-				                                           		destinationPosition, 
-				                                           		myStats.getMovementSpeed() * Time.deltaTime);
-				}
-			} else if (distance > 0) {
-				myTransform.position = Vector3.MoveTowards(myTransform.position, 
-			                                                destinationPosition, 
-			                                           		myStats.getMovementSpeed() * Time.deltaTime);
-			} else {
-				currentState = MonsterState.IDLE;
-				timer = Random.Range(1.0f, 3.0f);
-				animation.Play(idleAnimationString);
+		if (currentState != MonsterState.DEAD) {
+			if (myStats.getHealthPoints() <= 0) {
+				currentState = MonsterState.DEAD;
+				animation.wrapMode = WrapMode.Once;
+				animation.Play(deathAnimationString);
+				timer = animation[deathAnimationString].length * 1.0f;
+				playerStats.addExperience(myStats.getExpPerKill()*(1.0f+StatsClass.expBonus));
+				playerStats.addGold(myStats.getGoldPerKill()*(1.0f+StatsClass.goldBonus));
+				gameObject.tag = "DeadMonster";
 			}
-		} else if (currentState == MonsterState.ATTACKING) {
-			if (timer <= 0) {
-				currentState = MonsterState.COMBAT_IDLE;
-				timer = myStats.getAttackCooldown();
-				animation.Play(battleIdleAnimationString);
-				//deal damage
-			}
-		} else if (currentState == MonsterState.COMBAT_IDLE) {
-			if (timer <= 0) {
+			lookForPlayer ();
+			float distance = Vector3.Distance(myTransform.position, destinationPosition);
+			if (currentState == MonsterState.MOVING) {
 				if (attacking) {
 					if (distance < myStats.getAttackRange()) {
-						currentState = MonsterState.ATTACKING;
-						timer = attackAnimationLength; //time of animation
-						animation.Play(attackAnimationString);
+						if (timer > 0) {
+							currentState = MonsterState.COMBAT_IDLE;
+							animation.Play(battleIdleAnimationString);
+						} else {
+							destinationPosition = myTransform.position;
+							//destinationDistance = 0;
+							currentState = MonsterState.ATTACKING;
+							timer = attackAnimationLength;
+							animation.Play(attackAnimationString);
+						}
 					} else {
-						currentState = MonsterState.MOVING;
-						animation.Play(runAnimationString);
+							moveTowards();
 					}
+				} else if (distance > 0) {
+						moveTowards();
 				} else {
 					currentState = MonsterState.IDLE;
 					timer = Random.Range(1.0f, 3.0f);
 					animation.Play(idleAnimationString);
 				}
-			}
-		} else if (currentState == MonsterState.IDLE) {
-			if (timer <=0 ) {
-				if (!attacking) {
-					moveObject();
+			} else if (currentState == MonsterState.ATTACKING) {
+				if (timer <= 0) {
+					playerStats.getHurt(myStats.getDamage());
+					currentState = MonsterState.COMBAT_IDLE;
+					timer = myStats.getAttackCooldown();
+					animation.Play(battleIdleAnimationString);
 				}
-				currentState = MonsterState.MOVING;
-				animation.Play(runAnimationString);
+			} else if (currentState == MonsterState.COMBAT_IDLE) {
+				if (timer <= 0) {
+					if (attacking) {
+						if (distance < myStats.getAttackRange()) {
+							currentState = MonsterState.ATTACKING;
+							timer = attackAnimationLength; //time of animation
+							animation.Play(attackAnimationString);
+						} else {
+							currentState = MonsterState.MOVING;
+							animation.Play(runAnimationString);
+						}
+					} else {
+						currentState = MonsterState.IDLE;
+						timer = Random.Range(1.0f, 3.0f);
+						animation.Play(idleAnimationString);
+					}
+				}
+			} else if (currentState == MonsterState.IDLE) {
+				if (timer <=0 ) {
+					if (!attacking) {
+						moveObject();
+					}
+					currentState = MonsterState.MOVING;
+					animation.Play(runAnimationString);
+				}
+			}
+
+		} else {
+			if (timer <= 0) {
+				Vector3 newPosition = transform.position;
+				newPosition.y -= transform.localScale.y * Time.deltaTime;
+				transform.position = newPosition;
+			}
+			if (timer <= -1) {
+				Destroy(transform.gameObject);
 			}
 		}
 		timer -= Time.deltaTime;

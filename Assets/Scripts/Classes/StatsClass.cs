@@ -3,6 +3,7 @@ using System.Collections;
 
 public class StatsClass {
 
+	//STAT PART
 	public static int dungeonLevel;
 	public static int maxDungeonLevel;
 	public static uint gold;
@@ -15,5 +16,8 @@ public class StatsClass {
 	public static int damageReduction;
 	public static int dodgeChance;
 
+	//PASSIVE PART
+	public static float goldBonus;
+	public static float expBonus;
 
 }

@@ -136,11 +136,14 @@ public class DungeonCreator : MonoBehaviour {
 		startPos.z = (dungeon.getRoom(0).getBottomY () - dungeon.getRoom(0).getTopY ()) / 2 + dungeon.getRoom(0).getTopY();
 		startPos.y = 0.35f;
 		player.transform.Translate (startPos);
+		LookForMonsters looker = (LookForMonsters)player.transform.gameObject.GetComponent (typeof(LookForMonsters));
+		looker.numberOfEnemies = enemiesToSpawn;
 	}
 		
 		
 		// Use this for initialization
 	void Start () {
+		dungeonLevel = StatsClass.dungeonLevel;
 		Random.seed = (int)System.DateTime.Now.Ticks;
 		dungeon = new DungeonClass (dungeonLevel);
 		dungeon.generateNewDungeon (levelSize, tilesToBeCreated, minimumRoomSize, maximumRoomSize,
@@ -178,6 +181,7 @@ public class DungeonCreator : MonoBehaviour {
 		SpawnMonsters ();
 		//monsterSpawner
 		putPlayerToStartingPosition ();
+
 	}
 
 	public DungeonClass getDungeon() {

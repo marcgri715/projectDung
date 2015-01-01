@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class WeaponClass {
+public class WeaponsClass {
 
 	private string weaponName;
 	private int currentLevel;
@@ -9,7 +9,7 @@ public class WeaponClass {
 	private float maxDamage;
 	private float attackSpeed;
 
-	public WeaponClass (string name, int level, int minDmg, int maxDmg, float AS) {
+	public WeaponsClass (string name, int level, int minDmg, int maxDmg, float AS) {
 		weaponName = name;
 		currentLevel = level;
 		minDamage = minDmg;

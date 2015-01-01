@@ -5,12 +5,18 @@ public class LookForMonsters : MonoBehaviour {
 
 	private LayerMask obstacleLayerMask = 1 << 10;
 	private LayerMask clickableLayerMask = 1 << 8;
-	//private LayerMask enemyLayerMask = 1 << 11; 
 	public float visionRange;
+	private bool[] visibility;
+	public int numberOfEnemies;
+
+	public bool isVisible(int index) {
+		return visibility [index];
+	}
+
 
 	// Use this for initialization
 	void Start () {
-	
+		visibility = new bool[numberOfEnemies];
 	}
 	
 	// Update is called once per frame
@@ -20,16 +26,18 @@ public class LookForMonsters : MonoBehaviour {
 			if (colliders[i].tag=="Monster") {
 				Ray ray = new Ray(transform.position, colliders[i].transform.position-transform.position);
 				float distance = Vector3.Distance(transform.position, colliders[i].transform.position);
-				LayerMask mask = obstacleLayerMask | clickableLayerMask; // | enemyLayerMask;
+				LayerMask mask = obstacleLayerMask | clickableLayerMask;
 				RaycastHit hit;
 				float visionRangeLeft = visionRange;
 				while (true) {
-					if (Physics.Raycast(ray, out hit, distance, mask)) {
+					if (distance > 0 && Physics.Raycast(ray, out hit, distance, mask)) {
 						if (hit.collider.tag != "Monster" || distance > visionRangeLeft) {
 							Renderer[] rends = colliders[i].GetComponentsInChildren<Renderer>();
 							for (int j=0; j<rends.Length; j++) {
 								rends[j].enabled = false;
 							}
+							//if (colliders[i].tag == "Monster")
+								visibility[int.Parse(colliders[i].name)] = false;
 							break;
 						} else if (hit.collider.tag == "Monster" && hit.collider != colliders[i]) {
 							ray = new Ray(hit.transform.position, 
@@ -42,6 +50,7 @@ public class LookForMonsters : MonoBehaviour {
 							for (int j=0; j<rends.Length; j++) {
 								rends[j].enabled = true;
 							}
+							visibility[int.Parse(hit.transform.gameObject.name)] = true;
 							break;
 						}
 					} else break;

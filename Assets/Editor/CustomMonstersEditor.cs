@@ -17,7 +17,7 @@ public class CustomMonstersEditor : Editor {
 		dungeonCreator = (DungeonCreator)target;
 		GetTarget = new SerializedObject (dungeonCreator);
 		ThisList = GetTarget.FindProperty ("monsterList");
-		showMonsters = new List<bool> (ThisList.arraySize);
+		showMonsters = new List<bool> ();
 		for (int i=0; i<ThisList.arraySize; i++) {
 			showMonsters.Add(false);
 		}
@@ -84,6 +84,7 @@ public class CustomMonstersEditor : Editor {
 				SerializedProperty visionRange = monsterListRef.FindPropertyRelative ("visionRange");
 
 				EditorGUILayout.PropertyField (monsterModel);
+				EditorGUILayout.PropertyField (name);
 				EditorGUILayout.PropertyField (chanceToSpawn);
 				EditorGUILayout.PropertyField (healthPoints);
 				EditorGUILayout.PropertyField (attackRange);

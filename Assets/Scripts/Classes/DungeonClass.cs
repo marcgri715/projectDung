@@ -67,9 +67,6 @@ public class DungeonClass {
 					newType = RoomClass.RoomType.RECTANGULAR;
 				else
 					newType = RoomClass.RoomType.OCTAGONAL;
-				/*if (newType!=RoomClass.RoomType.CORRIDOR && 
-				    spawnedRooms[chosenRoom].getRoomType()!=RoomClass.RoomType.CORRIDOR)
-					continue;*/
 				int horizontalSize=0, verticalSize=0;
 				if (newType == RoomClass.RoomType.CORRIDOR) {
 					if (chosenSide==1 || chosenSide==2)
