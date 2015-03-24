@@ -48,12 +48,12 @@
   <ItemGroup>
      <Compile Include="Assets\Editor\CustomMonstersEditor.cs" />
      <Compile Include="Assets\Editor\CustomUpgradesEditor.cs" />
-     <None Include="Assets\Warrior 2 Swords\sources\Toon Shading\Toony-Basic.shader" />
-     <None Include="Assets\Warrior 2 Swords\sources\Toon Shading\Toony Gooch RimOutline Hard.shader" />
-     <None Include="Assets\Warrior 2 Swords\sources\Toon Shading\Toony-BasicOutline.shader" />
-     <None Include="Assets\Warrior 2 Swords\sources\Toon Shading\Toony-LightedOutline.shader" />
-     <None Include="Assets\Warrior 2 Swords\sources\Toon Shading\Toony-Lighted.shader" />
-     <None Include="Assets\SkeletonData\animations.txt" />
+     <None Include="Assets\Models\Warrior 2 Swords\sources\Toon Shading\Toony-Basic.shader" />
+     <None Include="Assets\Models\Warrior 2 Swords\sources\Toon Shading\Toony Gooch RimOutline Hard.shader" />
+     <None Include="Assets\Models\Warrior 2 Swords\sources\Toon Shading\Toony-BasicOutline.shader" />
+     <None Include="Assets\Models\Warrior 2 Swords\sources\Toon Shading\Toony-LightedOutline.shader" />
+     <None Include="Assets\Models\Warrior 2 Swords\sources\Toon Shading\Toony-Lighted.shader" />
+     <None Include="Assets\Models\SkeletonData\animations.txt" />
  <Reference Include="UnityEditor.Graphs">
  <HintPath>C:\Program Files (x86)\Unity\Editor\Data\Managed\UnityEditor.Graphs.dll</HintPath>
  </Reference>

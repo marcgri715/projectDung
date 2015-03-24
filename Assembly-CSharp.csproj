@@ -48,15 +48,12 @@
   <ItemGroup>
      <Compile Include="Assets\Scripts\Behaviour\DefaultBehavior.cs" />
      <Compile Include="Assets\Scripts\Behaviour\OpenDoor.cs" />
-     <Compile Include="Assets\Scripts\Classes\ArmorClass.cs" />
      <Compile Include="Assets\Scripts\Classes\DungeonClass.cs" />
      <Compile Include="Assets\Scripts\Classes\HighlightedEnemyHealthClass.cs" />
      <Compile Include="Assets\Scripts\Classes\MonsterClass.cs" />
-     <Compile Include="Assets\Scripts\Classes\PassiveSkillsClass.cs" />
      <Compile Include="Assets\Scripts\Classes\PlayerStatsClass.cs" />
      <Compile Include="Assets\Scripts\Classes\RoomClass.cs" />
      <Compile Include="Assets\Scripts\Classes\StatsClass.cs" />
-     <Compile Include="Assets\Scripts\Classes\WeaponClass.cs" />
      <Compile Include="Assets\Scripts\Controls\HighlightOnMouseOver.cs" />
      <Compile Include="Assets\Scripts\Controls\LookAtPlayer.cs" />
      <Compile Include="Assets\Scripts\Controls\LookForMonsters.cs" />
@@ -66,12 +63,12 @@
      <Compile Include="Assets\Scripts\GUI\MainMenuGUI.cs" />
      <Compile Include="Assets\Scripts\GUI\UpgradesGUI.cs" />
      <Compile Include="Assets\Scripts\Spawners\DungeonCreator.cs" />
-     <None Include="Assets\Warrior 2 Swords\sources\Toon Shading\Toony-Basic.shader" />
-     <None Include="Assets\Warrior 2 Swords\sources\Toon Shading\Toony Gooch RimOutline Hard.shader" />
-     <None Include="Assets\Warrior 2 Swords\sources\Toon Shading\Toony-BasicOutline.shader" />
-     <None Include="Assets\Warrior 2 Swords\sources\Toon Shading\Toony-LightedOutline.shader" />
-     <None Include="Assets\Warrior 2 Swords\sources\Toon Shading\Toony-Lighted.shader" />
-     <None Include="Assets\SkeletonData\animations.txt" />
+     <None Include="Assets\Models\Warrior 2 Swords\sources\Toon Shading\Toony-Basic.shader" />
+     <None Include="Assets\Models\Warrior 2 Swords\sources\Toon Shading\Toony Gooch RimOutline Hard.shader" />
+     <None Include="Assets\Models\Warrior 2 Swords\sources\Toon Shading\Toony-BasicOutline.shader" />
+     <None Include="Assets\Models\Warrior 2 Swords\sources\Toon Shading\Toony-LightedOutline.shader" />
+     <None Include="Assets\Models\Warrior 2 Swords\sources\Toon Shading\Toony-Lighted.shader" />
+     <None Include="Assets\Models\SkeletonData\animations.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

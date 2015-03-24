@@ -1,34 +1,52 @@
-﻿using UnityEngine;
+﻿/* 
+ * Imię i nazwisko autora: Marcin Griszbacher
+ * Temat pracy: Gra RPG stworzona w oparciu o silnik Unity
+ * 
+ * Klasa CustomMonstersEditor
+ * Zadanie: skrypt, który zmienia inspektora skryptu DungeonCreator w edytorze silnika Unity w taki sposób, by możliwe
+ * 			było wyświetlenie listy przeciwników o dynamicznej liczbie elementów (domyślnie niemożliwe) oraz 
+ * 			uporządkowanie pozostałych modyfikowalnych parametrów skryptu. 
+ */
+
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 
+//Własny inspector dla skryptu DungeonCreator
 [CustomEditor(typeof(DungeonCreator))]
 
 public class CustomMonstersEditor : Editor {
 
+	//skrypt
 	DungeonCreator dungeonCreator;
 	SerializedObject GetTarget;
-	SerializedProperty ThisList;
+	//Lista do wyświetlenia
+	SerializedProperty monsterList;
+	//rozmiar listy
 	int listSize;
+	//wyświetlanie/chowanie elementów danego obiektu listy
 	List<bool> showMonsters;
 
 	void OnEnable() {
+		//wyszukanie listy w skrypcie
 		dungeonCreator = (DungeonCreator)target;
 		GetTarget = new SerializedObject (dungeonCreator);
-		ThisList = GetTarget.FindProperty ("monsterList");
+		monsterList = GetTarget.FindProperty ("monsterList");
+		//schowanie listy wrogów
 		showMonsters = new List<bool> ();
-		for (int i=0; i<ThisList.arraySize; i++) {
+		for (int i=0; i<monsterList.arraySize; i++) {
 			showMonsters.Add(false);
 		}
 	}
 
 	public override void OnInspectorGUI() {
+		//Aktualizacja parametrów
 		GetTarget.Update ();
 		EditorGUILayout.Space ();
 		EditorGUILayout.Space ();
+		//Wyświetlenie zwyczajnych parametrów w odpowiadających im polach
 		EditorGUILayout.LabelField ("Define dungeon parameters",EditorStyles.boldLabel);
-		dungeonCreator.dungeonLevel = EditorGUILayout.IntField ("Dungeon level: ", dungeonCreator.dungeonLevel);
 		dungeonCreator.levelSize = EditorGUILayout.IntField ("Level size: ", dungeonCreator.levelSize);
 		dungeonCreator.tilesToBeCreated = EditorGUILayout.IntField ("Tiles to be created: ", dungeonCreator.tilesToBeCreated);
 		dungeonCreator.minimumRoomSize = EditorGUILayout.IntField ("Minimum room size: ", dungeonCreator.minimumRoomSize);
@@ -46,31 +64,36 @@ public class CustomMonstersEditor : Editor {
 		EditorGUILayout.Space ();
 
 		EditorGUILayout.LabelField ("Define number of monsters", EditorStyles.boldLabel);
-		listSize = ThisList.arraySize;
+		listSize = monsterList.arraySize;
+		//Pobranie liczby rodzajów wrogów
 		listSize = EditorGUILayout.IntField ("Number of monsters: ", listSize);
 		if (listSize < 0)
 			listSize = 0;
-		if (listSize != ThisList.arraySize) {
-			while (listSize > ThisList.arraySize) {
-				ThisList.InsertArrayElementAtIndex (ThisList.arraySize);
+		//Dodanie lub usunięcie nowych elementów listy
+		if (listSize != monsterList.arraySize) {
+			while (listSize > monsterList.arraySize) {
+				monsterList.InsertArrayElementAtIndex (monsterList.arraySize);
 				showMonsters.Add(false);
 			}
-			while (listSize < ThisList.arraySize) {
-				ThisList.DeleteArrayElementAtIndex (ThisList.arraySize - 1);
-				/*if (showMonsters.Count>0)*/ showMonsters.RemoveAt(showMonsters.Count - 1);
+			while (listSize < monsterList.arraySize) {
+				monsterList.DeleteArrayElementAtIndex (monsterList.arraySize - 1);
+				if (showMonsters.Count>0) 
+					showMonsters.RemoveAt(showMonsters.Count - 1);
 			}
 		}
+		//Pytanie o liczbę typów oraz liczbę przeciwników w podziemiach
 		dungeonCreator.numberOfTypes = EditorGUILayout.IntField ("Number of enemy types: ", dungeonCreator.numberOfTypes);
-		if (ThisList.arraySize > 0 && dungeonCreator.numberOfTypes < 0)
+		if (monsterList.arraySize > 0 && dungeonCreator.numberOfTypes < 0)
 			dungeonCreator.numberOfTypes = 1;
-		if (dungeonCreator.numberOfTypes > ThisList.arraySize)
-			dungeonCreator.numberOfTypes = ThisList.arraySize;
+		if (dungeonCreator.numberOfTypes > monsterList.arraySize)
+			dungeonCreator.numberOfTypes = monsterList.arraySize;
 		dungeonCreator.enemiesToSpawn = EditorGUILayout.IntField ("Enemies to spawn: ", dungeonCreator.enemiesToSpawn);
-
-		for (int i=0; i<ThisList.arraySize; i++) {
+		//wyświetlanie listy
+		for (int i=0; i<monsterList.arraySize; i++) {
 			showMonsters[i] = EditorGUILayout.Foldout(showMonsters[i], "Monster number " + i);
 			if (showMonsters[i]) {
-				SerializedProperty monsterListRef = ThisList.GetArrayElementAtIndex (i);
+				//Wyświetlenie pól danego obiektu listy
+				SerializedProperty monsterListRef = monsterList.GetArrayElementAtIndex (i);
 				SerializedProperty name = monsterListRef.FindPropertyRelative ("name");
 				SerializedProperty monsterModel = monsterListRef.FindPropertyRelative ("monsterModel");
 				SerializedProperty chanceToSpawn = monsterListRef.FindPropertyRelative ("chanceToSpawn");
@@ -97,7 +120,7 @@ public class CustomMonstersEditor : Editor {
 				EditorGUILayout.Space();
 			}
 		}
-
+		//Zapis wszystkich zmian
 		GetTarget.ApplyModifiedProperties ();
 	}
 
